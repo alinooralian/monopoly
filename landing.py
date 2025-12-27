@@ -53,6 +53,40 @@ def signup():
         
     print(f"Hello {username}! You are ready to play.")
     return True
+def login(Type):
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+    
+    check = False
+    if Type == 1:
+        for i in users:
+            if users[i][0] == username:
+                check = True
+                if users[i][1] == password:
+                    players[i] = {
+                        "username" : username,
+                        "password" : password,
+                        "money" : 120,
+                        "property" : 0,
+                        "prsion" : False
+                    }
+                    with open("players.json", "w", encoding="utf-8") as f:
+                        json.dump(players, f, ensure_ascii=False, indent=4)
+                    return True
+                break
+    else:
+        for i in players:
+            if players[i]["username"] == username:
+                check = True
+                if players[i]["password"] == password:
+                    return True
+    if check:
+        print("The password is invalid.")
+    else:
+        print("Username not found.")
+    
+    print(f"Hello {username}! You are ready to play.")
+    return False
 
 print("1.New Game")
 print("2.Load Game")
@@ -81,7 +115,19 @@ if key == '1':
                 if signup():
                     break
         elif key == '2':
-            pass
+            while True:
+                if login(1):
+                    break
         
         if key == '3':
             exit()
+elif key == '2':
+    cnt = 0
+    while cnt < 4:
+        while True:
+            if login(2):
+                break
+        
+        cnt += 1
+elif key == '4':
+    exit()

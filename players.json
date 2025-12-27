@@ -1,0 +1,13 @@
+{
+    "3b9ce1b8-0ffd-4c30-b5df-639d077f9f29": {
+        "username": "alinoor",
+        "password": "alasvasv",
+        "cash": 120,
+        "position": 0,
+        "property": [],
+        "jail": false,
+        "get_out_of_jail_card": false,
+        "dice_counter": 3,
+        "bankrupt": false
+    }
+}

@@ -144,3 +144,27 @@ def build_house_check(player_name , pos):
 
 def color_index(color):
     return [x for x in tile_information if tiles[x]["type"] == "street" and tile_information[x].get("color" , False) == color]
+
+def community_chest(player_name , pos):
+    pass
+
+def tax(player_name , pos): #tax tiles
+    if pos == 4:
+        pay(player_name , "bank" , 200 , "mandatory")
+    elif pos == 38:
+        pay(player_name , "bank" , 100 , "mandatory")
+
+def train(player_name , pos): #train stations
+    if tiles[pos]["owner"] != "bank" and tiles[pos]["owner"] != player_name:
+        pay(player_name , tiles[pos]["owner"] , 25 * (2 ** (train_own_count(tiles[pos]["owner"]) - 1)) , "mandatory")
+    elif tiles[pos]["owner"] == "bank":
+        chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+        if chosen_option == "1":
+            if pay(player_name , "bank" , 200 , "optional") == True:
+                tiles[pos]["owner"] = player_name
+                players[player_name]["property"][pos] = None
+        
+
+def train_own_count(owner): #count how many stations owner got
+    owners = [tiles[i]["owner"] for i in [5 , 15 , 25 , 35]]
+    return owners.count(owner)

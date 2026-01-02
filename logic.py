@@ -280,3 +280,24 @@ def switch_electric_water(pos): #switches between electric company and water wor
 def gotojail(player_name): #go to jail tile
     players[player_name]["jail"] = True
     players[player_name]["position"] = 10 # jail position
+
+
+
+
+player_list = list(players.keys())
+player_list.remove("bank")
+player = player_list[0]
+double_dice_counter = 0
+
+while len(player_list) > 1:
+    print(player , players[player])
+    print()
+    print(players)
+    double_dice = False
+    jail_check(player)
+    if double_dice == False:
+        player = player_list[(player_list.index(player) + 1) % len(player_list)]
+        double_dice_counter = 0
+    else:
+        double_dice_counter += 1
+

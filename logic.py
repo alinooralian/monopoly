@@ -40,3 +40,20 @@ def out_jail(player_name):
     dice1 , dice2 = dice()
     if pair_dice(dice1 , dice2 , player_name) == True:
         move_to(player_name , dice1 + dice2)
+
+def dice():
+    dice1 = random.randint(1 , 6)
+    dice2 = random.randint(1 , 6)
+    return dice1 , dice2
+
+def pair_dice(dice1 , dice2 , player_name):
+    if dice1 == dice2:
+        global double_dice_counter
+        if double_dice_counter == 2:
+            gotojail(player_name)
+            return False
+        else:
+            global double_dice
+            double_dice = True
+            return True
+    return True

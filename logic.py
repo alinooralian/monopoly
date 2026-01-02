@@ -57,3 +57,38 @@ def pair_dice(dice1 , dice2 , player_name):
             double_dice = True
             return True
     return True
+
+def move_to(player_name , step):
+    if players[player_name]["position"] + step > 39: #get round reward
+        players[player_name]["cash"] += 200
+    players[player_name]["position"] = (players[player_name]["position"] + step) % 40
+    print(players[player_name]["position"])
+    tile_check(player_name , step)
+    
+def pay(debtor , creditor , value , status): #status can be mandatory or optional
+    if players[debtor]["cash"] >= value:
+        players[debtor]["cash"] -= value
+        players[creditor]["cash"] += value
+        return True
+    else:
+        if status == "optional":
+            print("you don't have enough money to pay")
+            return False
+        
+        while players[debtor]["cash"] < value:
+            print(f"You are ${value - players[debtor]["cash"]} short.")
+            if sell_property(debtor) == False:
+                players[creditor]["cash"] += players[debtor]["cash"]
+                players[debtor]["cash"] = 0
+                players[creditor]["broke"] = True
+
+
+def sell_property(player_name):
+    if players[player_name]["property"] == {}:
+        return False
+    print(players[player_name]["property"])
+    chosen_option = int(input("enter the position of property you want to sell:\n"))
+    players[player_name]["property"].pop(chosen_option)
+    players[player_name]["cash"] += (tile_information[chosen_option]["buy_price"] // 2)
+    tiles[chosen_option]["owner"] = "bank"
+            

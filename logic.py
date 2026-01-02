@@ -92,3 +92,22 @@ def sell_property(player_name):
     players[player_name]["cash"] += (tile_information[chosen_option]["buy_price"] // 2)
     tiles[chosen_option]["owner"] = "bank"
             
+
+def tile_check(player_name , step): #define tile's type and related function
+    pos = players[player_name]["position"]
+    if tiles[pos]["type"] == "street":
+        street(player_name , pos)
+    elif tiles[pos]["type"] == "community_chest":
+        community_chest(player_name , pos)
+    elif tiles[pos]["type"] == "tax":
+        tax(player_name , pos)
+    elif tiles[pos]["type"] == "train":
+        train(player_name , pos)
+    elif tiles[pos]["type"] == "chance":
+        chance(player_name , pos)
+    elif tiles[pos]["type"] == "elctric/water":
+        electric_water(player_name , pos , step)
+    elif tiles[pos]["type"] == "gotojail":
+        gotojail(player_name)
+    else:
+        pass

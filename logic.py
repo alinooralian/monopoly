@@ -111,3 +111,36 @@ def tile_check(player_name , step): #define tile's type and related function
         gotojail(player_name)
     else:
         pass
+
+def street(player_name , pos):
+    if tiles[pos]["owner"] == "bank":
+        chosen_option = input("enter\n\t1.to buy\n\t2.to pass\n")
+        if chosen_option == "1":
+            if pay(player_name , "bank" , tile_information[pos]["buy_price"] , "optional") == True:
+                tiles[pos]["owner"] = player_name
+                players[player_name]["property"][pos] = 0
+    
+    elif tiles[pos]["owner"] != player_name:
+        pay(player_name , tiles[pos]["owner"] , tile_information[pos][ players[ tiles[pos]["owner"] ]["property"][pos] ] , "mandatory")
+
+    else:
+        print(f"You own this street: {pos}.{tile_information[pos]["name"]} | color: {tile_information[pos]["color"]} | stage: {players[player_name]["property"][pos]}")
+        if build_house_check(player_name , pos) == True and players[player_name]["property"][pos] != 5:
+            chosen_option = input("enter\n\t1.to build a house\n\t2.to pass")
+            if chosen_option == "1":
+                if pay(player_name , "bank" , tile_information[pos]["house_price"] , "optional") == True:
+                    players[player_name]["property"][pos] += 1
+        
+
+def build_house_check(player_name , pos):
+    color_owners = [tiles[i]["owner"] for i in color_index(tile_information[pos]["color"])]
+    if (color_owners.count(player_name) == len(color_owners)
+        and players[player_name]["property"][pos] == min([players[player_name]["property"][i] for i in color_owners]) ): 
+        # if player owns all of the color and the stage of position is minimum
+        return True
+    else:
+        return False
+
+
+def color_index(color):
+    return [x for x in tile_information if tiles[x]["type"] == "street" and tile_information[x].get("color" , False) == color]

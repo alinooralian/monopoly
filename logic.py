@@ -168,3 +168,31 @@ def train(player_name , pos): #train stations
 def train_own_count(owner): #count how many stations owner got
     owners = [tiles[i]["owner"] for i in [5 , 15 , 25 , 35]]
     return owners.count(owner)
+
+def chance(player_name , pos):
+    pass
+
+
+def electric_water(player_name , pos , step): #electric company and water works
+    if tiles[pos]["owner"] != "bank" and tiles[pos]["owner"] != player_name:
+        if tiles[pos]["owner"] == tiles[switch_electric_water(pos)]["owner"]:
+            pay(player_name , tiles[pos]["owner"] , 10 * step , "mandatory")
+        else:
+            pay(player_name , tiles[pos]["owner"] , 4 * step , "mandatory")   
+    elif tiles[pos]["owner"] == "bank":
+        chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+        if chosen_option == "1":
+            if pay(player_name , "bank" , 150 , "optional") == True:
+                tiles[pos]["owner"] = player_name
+                players[player_name]["property"][pos] = None
+        
+
+def switch_electric_water(pos): #switches between electric company and water works
+    if pos == 12: #electric company position
+        return 28
+    elif pos == 28: #water works position
+        return 12
+
+def gotojail(player_name): #go to jail tile
+    players[player_name]["jail"] = True
+    players[player_name]["position"] = 10 # jail position

@@ -1,8 +1,10 @@
 import random
-players = { "player1" : { "position": 0 , "cash": 1500 , "broke": False , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } , 
-            "player2" : { "position": 0 , "cash": 1500 , "broke": False , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
-            "player3" : { "position": 0 , "cash": 1500 , "broke": False , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
-            "player4" : { "position": 0 , "cash": 1500 , "broke": False , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
+import chance_community as ch_c
+
+players = { "player1" : { "position": 0 , "cash": 1500 , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } , 
+            "player2" : { "position": 0 , "cash": 1500 , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
+            "player3" : { "position": 0 , "cash": 1500 , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
+            "player4" : { "position": 0 , "cash": 1500 , "jail": False , "get_out_of_jail_card": False , "dice_counter": 3 , "property": {} } ,
             "bank"    : { "cash": float('inf')} }
 
 tiles = { 0  : { "type": ""                , "owner": "bank" } ,
@@ -86,15 +88,16 @@ tile_information = { 1  : { "name": "Mediterranean Avenue"  , "color": "Brown"  
 def jail_check(player_name): #check players jail status
     if players[player_name]["jail"] == True:
         in_jail(player_name) #player is in jail
+    
     else:
         out_jail(player_name) #player is out of jail
+
 
 def in_jail(player_name):
     print("YOU ARE IN JAIL!")
     if players[player_name]["get_out_of_jail_card"] == True: #player has get out of jail chance card
         print("YOU HAVE 'GET OUT OF JAIL CHANCE CARD' ")
         players[player_name]["get_out_of_jail_card"] = False
-        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!# card gets back to chance cards
         players[player_name]["jail"] = False
         die1 , die2 = dice()
         if pair_dice(die1 , die2 , player_name) == True:
@@ -103,15 +106,18 @@ def in_jail(player_name):
     elif players[player_name]["dice_counter"] > 0: #player has option to roll dice to get out of jail
         chosen_option = input("enter\n\t1.to roll dice\n\t2.to pay 50$\n")
         if chosen_option == "1":
-            die1 , die2 = dice()
-            if die1 == die2: #dice are pair and get out of jail
+            roll_dice_jail(player_name)
+        
+        else: #player chose pay to get out of jail
+            if pay(player_name , "bank" , 50 , "optional") == True: #if successful: get out of jail
                 players[player_name]["jail"] = False
                 players[player_name]["dice_counter"] = 3
-                move_to(player_name , die1 + die2)
-            else: #still stay in jail
-                players[player_name]["dice_counter"] -= 1
-        else: #player chose pay to get out of jail
-            pay(player_name , "bank" , 50 , "mandatory")    #if successful: get out of jail / else: go to roll dice part !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                die1 , die2 = dice()
+                if pair_dice(die1 , die2 , player_name) == True:
+                    move_to(player_name , die1 + die2)  
+            
+            else: #roll dice
+                roll_dice_jail(player_name)
     
     else: #player should pay to get out of jail
         if pay(player_name , "bank" , 50 , "mandatory") == True:
@@ -121,17 +127,30 @@ def in_jail(player_name):
             if pair_dice(die1 , die2 , player_name) == True:
                 move_to(player_name , die1 + die2)
 
+
+def roll_dice_jail(player_name):
+    die1 , die2 = dice()
+    if die1 == die2: #dice are pair and get out of jail
+        players[player_name]["jail"] = False
+        players[player_name]["dice_counter"] = 3
+        move_to(player_name , die1 + die2)
+    
+    else: #still stay in jail
+        players[player_name]["dice_counter"] -= 1
+
+
 def out_jail(player_name):
-    print("YOU ARE OUT OF JAIL!")
     die1 , die2 = dice()
     if pair_dice(die1 , die2 , player_name) == True:
         move_to(player_name , die1 + die2)
+
 
 def dice():
     die1 = random.randint(1 , 6)
     die2 = random.randint(1 , 6)
     print(f"YOUR DICE ARE: {die1} , {die2}")
     return die1 , die2
+
 
 def pair_dice(die1 , die2 , player_name):
     if die1 == die2:
@@ -140,26 +159,31 @@ def pair_dice(die1 , die2 , player_name):
             print("YOU ROLLED DOUBLES THREE TIMES IN A ROW, YOU GO TO JAIL!")
             gotojail(player_name)
             return False
+        
         else:
             global double_dice
             double_dice = True
             return True
+    
     return True
 
 
 def move_to(player_name , step):
     if players[player_name]["position"] + step > 39: #get round reward
         players[player_name]["cash"] += 200
+    
     players[player_name]["position"] = (players[player_name]["position"] + step) % 40
     print(f"YOUR CURRENT POSITION IS: {players[player_name]["position"]}")
     tile_check(player_name , step)
     
+
 def pay(debtor , creditor , value , status): #status can be mandatory or optional
     if players[debtor]["cash"] >= value:
         players[debtor]["cash"] -= value
         players[creditor]["cash"] += value
         print("your payment was successful")
         return True
+    
     else:
         if status == "optional":
             print("you don't have enough money to pay")
@@ -167,39 +191,51 @@ def pay(debtor , creditor , value , status): #status can be mandatory or optiona
         
         while players[debtor]["cash"] < value:
             print(f"You are ${value - players[debtor]["cash"]} short.")
-            if sell_property(debtor) == False:
+            if sell_property(debtor) == False: # player has gone broke
                 players[creditor]["cash"] += players[debtor]["cash"]
                 players[debtor]["cash"] = 0
-                players[creditor]["broke"] = True
+                player_list.remove(debtor)
 
 
 def sell_property(player_name):
     if players[player_name]["property"] == {}:
         return False
+    
     print(players[player_name]["property"])
     chosen_option = int(input("enter the position of property you want to sell:\n"))
+    players[player_name]["cash"] += sell_price(player_name , chosen_option)
     players[player_name]["property"].pop(chosen_option)
-    players[player_name]["cash"] += (tile_information[chosen_option]["buy_price"] // 2)
     tiles[chosen_option]["owner"] = "bank"
-            
+    return True
+
+
+def sell_price(player_name , pos):
+    return (tile_information[pos]["buy_price"] + (players[player_name]["property"][pos] * tile_information[pos]["house_price"])) // 2
 
 
 def tile_check(player_name , step): #define tile's type and related function
     pos = players[player_name]["position"]
     if tiles[pos]["type"] == "street":
         street(player_name , pos)
+    
     elif tiles[pos]["type"] == "community_chest":
-        community_chest(player_name , pos)
+        community_chest(player_name)
+    
     elif tiles[pos]["type"] == "tax":
         tax(player_name , pos)
+    
     elif tiles[pos]["type"] == "train":
         train(player_name , pos)
+    
     elif tiles[pos]["type"] == "chance":
-        chance(player_name , pos)
+        chance(player_name)
+    
     elif tiles[pos]["type"] == "elctric/water":
         electric_water(player_name , pos , step)
+    
     elif tiles[pos]["type"] == "gotojail":
         gotojail(player_name)
+    
     else:
         pass
 
@@ -217,14 +253,20 @@ def street(player_name , pos):
         print(f"this street is for {tiles[pos]["owner"]}")
         pay(player_name , tiles[pos]["owner"] , tile_information[pos][ players[ tiles[pos]["owner"] ]["property"][pos] ] , "mandatory")
 
-    else:
-        print(f"You own this street: {pos}.{tile_information[pos]["name"]} | color: {tile_information[pos]["color"]} | stage: {players[player_name]["property"][pos]}")
-        if build_house_check(player_name , pos) == True and players[player_name]["property"][pos] != 5:
-            chosen_option = input("enter\n\t1.to build a house\n\t2.to pass")
-            if chosen_option == "1":
-                if pay(player_name , "bank" , tile_information[pos]["house_price"] , "optional") == True:
-                    players[player_name]["property"][pos] += 1
-        
+
+def build_house(player_name):
+    if players[player_name]["property"] != {}:
+        chosen_option = input("enter\n\t1.to build a house\n\t2.to pass")
+        if chosen_option == "1":
+            print(players[player_name]["property"])
+            chosen_option = int(input("enter the position of property you want to build a house:\n"))
+            if build_house_check(player_name , chosen_option) == True and players[player_name]["property"][chosen_option] != 5:
+                if pay(player_name , "bank" , tile_information[chosen_option]["house_price"] , "optional") == True:
+                    players[player_name]["property"][chosen_option] += 1
+            else:
+                print("YOU CAN'T BUILD A HOUSE HERE")
+                build_house(player_name)
+
 
 def build_house_check(player_name , pos):
     color_owners = [tiles[i]["owner"] for i in color_index(tile_information[pos]["color"])]
@@ -232,6 +274,7 @@ def build_house_check(player_name , pos):
         and players[player_name]["property"][pos] == min([players[player_name]["property"][i] for i in color_owners]) ): 
         # if player owns all of the color and the stage of position is minimum
         return True
+    
     else:
         return False
 
@@ -240,23 +283,27 @@ def color_index(color):
     return [x for x in tile_information if tiles[x]["type"] == "street" and tile_information[x].get("color" , False) == color]
 
 
-def community_chest(player_name , pos):
+def community_chest(player_name):
     print("YOU ARE IN A COMMUNITY CHEST TILE!")
-    pass
+    ch_c.community_card_coming(player_name)
+
 
 def tax(player_name , pos): #tax tiles
     if pos == 4:
         print("YOU ARE IN INCOME-TAX TILE!")
         pay(player_name , "bank" , 200 , "mandatory")
+    
     elif pos == 38:
         print("YOU ARE IN LUXURY-TAX TILE!")
         pay(player_name , "bank" , 100 , "mandatory")
+
 
 def train(player_name , pos): #train stations
     print("YOU ARE IN A TRAIN STATION!")
     if tiles[pos]["owner"] != "bank" and tiles[pos]["owner"] != player_name:
         print(f"this train station is for {tiles[pos]["owner"]}")
         pay(player_name , tiles[pos]["owner"] , 25 * (2 ** (train_own_count(tiles[pos]["owner"]) - 1)) , "mandatory")
+    
     elif tiles[pos]["owner"] == "bank":
         chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
         if chosen_option == "1":
@@ -269,9 +316,10 @@ def train_own_count(owner): #count how many stations owner got
     owners = [tiles[i]["owner"] for i in [5 , 15 , 25 , 35]]
     return owners.count(owner)
 
-def chance(player_name , pos):
+
+def chance(player_name):
     print("YOU ARE IN A CHANCE TILE!")
-    pass
+    ch_c.chance_card_coming(player_name)
 
 
 def electric_water(player_name , pos , step): #electric company and water works
@@ -280,8 +328,10 @@ def electric_water(player_name , pos , step): #electric company and water works
         print(f"this utility is for {tiles[pos]["owner"]}")
         if tiles[pos]["owner"] == tiles[switch_electric_water(pos)]["owner"]:
             pay(player_name , tiles[pos]["owner"] , 10 * step , "mandatory")
+        
         else:
             pay(player_name , tiles[pos]["owner"] , 4 * step , "mandatory")   
+    
     elif tiles[pos]["owner"] == "bank":
         chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
         if chosen_option == "1":
@@ -293,13 +343,17 @@ def electric_water(player_name , pos , step): #electric company and water works
 def switch_electric_water(pos): #switches between electric company and water works
     if pos == 12: #electric company position
         return 28
+    
     elif pos == 28: #water works position
         return 12
+
 
 def gotojail(player_name): #go to jail tile
     print("YOU GO TO JAIL!")
     players[player_name]["jail"] = True
     players[player_name]["position"] = 10 # jail position
+    global double_dice
+    double_dice = False
 
 
 
@@ -316,14 +370,10 @@ while len(player_list) > 1:
     print()
     print(players)
     double_dice = False
+    build_house_check(player)
     jail_check(player)
     if double_dice == False:
         player = player_list[(player_list.index(player) + 1) % len(player_list)]
         double_dice_counter = 0
     else:
         double_dice_counter += 1
-
-
-
-
-

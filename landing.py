@@ -5,6 +5,7 @@ import time
 import os
 import bcrypt
 import curses
+import pygame
 from pathlib import Path
 
 with open("users.json", "r") as f:
@@ -14,6 +15,10 @@ with open("users.json", "r") as f:
         users = {}
 
 players = {}
+
+pygame.mixer.init()
+NAV_SOUND = pygame.mixer.Sound('menu_navigate_01.wav')
+SELECT_SOUND = pygame.mixer.Sound('menu_select_00.wav')
 
 def clean(t):
     time.sleep(t)
@@ -35,9 +40,12 @@ def menu(options):
             key = stdscr.getch()
             if key == curses.KEY_UP and current > 0:
                 current -= 1
+                NAV_SOUND.play()
             elif key == curses.KEY_DOWN and current < len(options) - 1:
                 current += 1
+                NAV_SOUND.play()
             elif key == curses.KEY_ENTER or key in [10, 13]:
+                SELECT_SOUND.play()
                 return options[current]
     return curses.wrapper(main)
 

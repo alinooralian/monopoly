@@ -4,6 +4,7 @@ import json
 import time
 import os
 import bcrypt
+import curses
 from pathlib import Path
 
 with open("users.json", "r") as f:
@@ -12,102 +13,33 @@ with open("users.json", "r") as f:
     except json.JSONDecodeError:
         users = {}
 
-players = dict()
+players = {}
 
-def clean():
+def clean(t):
+    time.sleep(t)
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def first_menu():
-    print("1.New Game")
-    print("2.Load Game")
-    print("3.Leaderboard")
-    print("4.Exit")
-    key = input()
-
-    clean()
-    
-    return key
-
-def new_game_menu():
-    while True:
-        game_name = input("Enter your game name: ") + ".json"
-        clean()
-        
-        path = Path(__file__).parent / "old_games" / game_name
-        if path.exists():
-            print("This game already exists.")
-            time.sleep(1)
-            clean()
-        else:
-            with open(path, "w", encoding="utf-8") as f:
-                pass
-            
-            with open(path, "r", encoding="utf-8") as f:
-                try:
-                    players = json.load(f)
-                except json.JSONDecodeError:
-                    players = {}
-            break
-    
-    i = 1
-    while True:
-        if len(players) >= 4:
-            break
-        print("1.Singup")
-        print("2.Login")
-        print("3.Exit")
-        key = input()
-        
-        clean()
-        
-        if key == '1':
-            while True:
-                if signup(path):
-                    break
-        
-        if key == '2':
-            while True:
-                if login(path, 1):
-                    break
-        if key == '3':
-            break
-    
-    return key
-
-def load_game_menu():
-    game_name = input("Enter your game name: ") + ".json"
-    clean()
-    
-    path = Path(__file__).parent / "old_games" / game_name
-    with open(path, "r", encoding="utf-8") as f:
-        try:
-            players = json.load(f)
-        except json.JSONDecodeError:
-            players = {}
-
-    if len(players) < 4:
-        print(f"You have fewer than 4 players. {4 - len(players)} more people must register first.")
-        time.sleep(2)
-        clean()
-        
-        cnt = 4 - len(players)
-        while cnt:
-            while True:
-                if signup(path):
-                    break
-            cnt -= 1
-        
-        print("Now you can log in to your account to continue playing.")
-        time.sleep(2)
-        clean()
-        
-    cnt = 1
-    while cnt <= 4:
+def menu(options):
+    def main(stdscr):
+        curses.curs_set(0)
+        stdscr.keypad(True)
+        current = 0
         while True:
-            if login(path, 2):
-                break
-        
-        cnt += 1
+            stdscr.clear()
+            for idx, option in enumerate(options):
+                if idx == current:
+                    stdscr.addstr(idx, 0, option, curses.A_REVERSE)
+                else:
+                    stdscr.addstr(idx, 0, option)
+            stdscr.refresh()
+            key = stdscr.getch()
+            if key == curses.KEY_UP and current > 0:
+                current -= 1
+            elif key == curses.KEY_DOWN and current < len(options) - 1:
+                current += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                return options[current]
+    return curses.wrapper(main)
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -119,29 +51,23 @@ def signup(path):
     username = input("Enter your username: ")
     password = input("Enter your password: ")
     email = input("Enter your email: ")
-    clean()
+    clean(0)
     
     for i in users:
         if users[i][0] == username:
             print("This username is already registered.")
-            time.sleep(1)
-            clean()
-            
+            clean(1)
             return False
     
     pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
     if not re.match(pattern, email):
         print("This email is invalid.")
-        time.sleep(1)
-        clean()
-            
+        clean(1)
         return False
     
     if len(password) < 8:
         print("Password length must be at least 8 characters.")
-        time.sleep(1)
-        clean()
-            
+        clean(1)
         return False
     
     userid = str(uuid.uuid4())
@@ -164,16 +90,14 @@ def signup(path):
         json.dump(players, f, ensure_ascii=False, indent=4)
     
     print(f"Hello {username}! You are ready to play.")
-    time.sleep(1)
-    clean()
-            
+    clean(1)
     return True
 
 def login(path, Type):
     username = input("Enter your username: ")
     password = input("Enter your password: ")
-    clean()
-            
+    clean(0)
+    
     check = False
     if Type == 1:
         for i in users:
@@ -182,7 +106,7 @@ def login(path, Type):
                 if check_password(password, users[i][1]):
                     players[i] = {
                         "username": username,
-                        "password": hash_password(password),
+                        "password": users[i][1],
                         "position": 0,
                         "cash": 1500,
                         "broke": False,
@@ -193,10 +117,8 @@ def login(path, Type):
                     }
                     with open(path, "w", encoding="utf-8") as f:
                         json.dump(players, f, ensure_ascii=False, indent=4)
-                        
                     print(f"Hello {username}! You are ready to play.")
-                    time.sleep(1)
-                    clean()
+                    clean(1)
                     return True
                 break
     else:
@@ -205,33 +127,76 @@ def login(path, Type):
                 check = True
                 if check_password(password, players[i]["password"]):
                     print(f"Hello {username}! You are ready to play.")
-                    time.sleep(1)
-                    clean()
+                    clean(1)
                     return True
+                break
     if check:
         print("The password is invalid.")
-        time.sleep(1)
-        clean()
+        clean(1)
     else:
         print("Username not found.")
-        time.sleep(1)
-        clean()
-                    
+        clean(1)
     return False
 
-
-key = first_menu()
-
-if key == '1':
-    key = new_game_menu()
-    while key == '3':
-        key = first_menu()
-        if key == '1':
-            key = new_game_menu_menu()
-        elif key == '2':
-            load_game_menu()
+while True:
+    choice = menu(["New Game", "Load Game", "Leaderboard", "Exit"])
+    clean(0)
+    
+    if choice == "New Game":
+        while True:
+            game_name = input("Enter your game name: ") + ".json"
+            clean(0)
+            path = Path(__file__).parent / "old_games" / game_name
+            if path.exists():
+                print("This game already exists.")
+                clean(1)
+            else:
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump({}, f, ensure_ascii=False, indent=4)
+                players = {}
+                break
+        
+        while len(players) < 4:
+            sub_choice = menu(["Signup", "Login", "Back"])
+            clean(0)
+            if sub_choice == "Back":
+                break
+            elif sub_choice == "Signup":
+                while not signup(path):
+                    pass
+            elif sub_choice == "Login":
+                while not login(path, 1):
+                    pass
+        
+        if len(players) == 4:
             break
-elif key == '2':
-    load_game_menu()
-elif key == '4':
-    exit()
+    
+    elif choice == "Load Game":
+        game_name = input("Enter your game name: ") + ".json"
+        clean(0)
+        path = Path(__file__).parent / "old_games" / game_name
+        if not path.exists():
+            print("Game not found.")
+            clean(1)
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            players = json.load(f)
+        
+        if len(players) < 4:
+            print(f"You have fewer than 4 players. {4 - len(players)} more people must register first.")
+            clean(2)
+            cnt = 4 - len(players)
+            while cnt > 0:
+                if signup(path):
+                    cnt -= 1
+            print("Now you can log in to your account to continue playing.")
+            clean(2)
+        
+        for i in range(4):
+            while not login(path, 2):
+                pass
+        
+        break
+    
+    elif choice == "Exit":
+        exit()

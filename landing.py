@@ -57,8 +57,11 @@ def check_password(input_password, stored_hash):
 
 def signup(path):
     username = input("Enter your username: ")
+    SELECT_SOUND.play()
     password = input("Enter your password: ")
+    SELECT_SOUND.play()
     email = input("Enter your email: ")
+    SELECT_SOUND.play()
     clean(0)
     
     for i in users:
@@ -103,7 +106,9 @@ def signup(path):
 
 def login(path, Type):
     username = input("Enter your username: ")
+    SELECT_SOUND.play()
     password = input("Enter your password: ")
+    SELECT_SOUND.play()
     clean(0)
     
     check = False
@@ -153,6 +158,7 @@ while True:
     if choice == "New Game":
         while True:
             game_name = input("Enter your game name: ") + ".json"
+            SELECT_SOUND.play()
             clean(0)
             path = Path(__file__).parent / "old_games" / game_name
             if path.exists():
@@ -181,6 +187,7 @@ while True:
     
     elif choice == "Load Game":
         game_name = input("Enter your game name: ") + ".json"
+        SELECT_SOUND.play()
         clean(0)
         path = Path(__file__).parent / "old_games" / game_name
         if not path.exists():

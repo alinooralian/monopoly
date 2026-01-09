@@ -1,0 +1,162 @@
+{
+    "0": {
+        "type": "",
+        "owner": "bank"
+    },
+    "1": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "2": {
+        "type": "community_chest",
+        "owner": "bank"
+    },
+    "3": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "4": {
+        "type": "tax",
+        "owner": "bank"
+    },
+    "5": {
+        "type": "train",
+        "owner": "bank"
+    },
+    "6": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "7": {
+        "type": "chance",
+        "owner": "bank"
+    },
+    "8": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "9": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "10": {
+        "type": "",
+        "owner": "bank"
+    },
+    "11": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "12": {
+        "type": "elctric/water",
+        "owner": "bank"
+    },
+    "13": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "14": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "15": {
+        "type": "train",
+        "owner": "bank"
+    },
+    "16": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "17": {
+        "type": "community_chest",
+        "owner": "bank"
+    },
+    "18": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "19": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "20": {
+        "type": "",
+        "owner": "bank"
+    },
+    "21": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "22": {
+        "type": "chance",
+        "owner": "bank"
+    },
+    "23": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "24": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "25": {
+        "type": "train",
+        "owner": "bank"
+    },
+    "26": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "27": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "28": {
+        "type": "elctric/water",
+        "owner": "bank"
+    },
+    "29": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "30": {
+        "type": "gotojail",
+        "owner": "bank"
+    },
+    "31": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "32": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "33": {
+        "type": "community_chest",
+        "owner": "bank"
+    },
+    "34": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "35": {
+        "type": "train",
+        "owner": "bank"
+    },
+    "36": {
+        "type": "chance",
+        "owner": "bank"
+    },
+    "37": {
+        "type": "street",
+        "owner": "bank"
+    },
+    "38": {
+        "type": "tax",
+        "owner": "bank"
+    },
+    "39": {
+        "type": "street",
+        "owner": "bank"
+    }
+}

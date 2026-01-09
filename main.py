@@ -135,7 +135,9 @@ def login(path, Type):
                     return True
                 break
     else:
-        for i in players:
+        for i in players.keys():
+            if i == "bank" or i == "turn":
+                break
             if players[i]["username"] == username:
                 check = True
                 if check_password(password, players[i]["password"]):
@@ -158,6 +160,7 @@ def game(path):
     path__ = path / "tile_information.json"
     with open(path__, "r", encoding="utf-8") as f:
             tile_information = json.load(f)
+    path___ = path
     path = path / f"{game_name}.json"
     
     def jail_check(player_name): #check players jail status
@@ -809,36 +812,46 @@ def game(path):
     player = players["turn"]
     double_dice_counter = 0
 
-    while len(player_list) > 1:
-        print_player(player)
-        double_dice = False
-        build_house(player)
-        jail_check(player)
-        if double_dice == False:
-            player = player_list[(player_list.index(player) + 1) % len(player_list)]
-            players["turn"] = player
+    # while len(player_list) > 1:
+    #     print_player(player)
+    #     double_dice = False
+    #     build_house(player)
+    #     jail_check(player)
+    #     if double_dice == False:
+    #         player = player_list[(player_list.index(player) + 1) % len(player_list)]
+    #         players["turn"] = player
             
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(players, f, ensure_ascii=False, indent=4)
+    #         with open(path, "w", encoding="utf-8") as f:
+    #             json.dump(players, f, ensure_ascii=False, indent=4)
 
-            double_dice_counter = 0
-        else:
-            double_dice_counter += 1
-        clean(5)
+    #         double_dice_counter = 0
+    #     else:
+    #         double_dice_counter += 1
+    #     clean(5)
 
     print(f"Wow! {players[player_list[0]]["username"]} won this game.")
-    leaderboard[player_list[0]] = {
-        "username" : players[player_list[0]]["username"]
-    }
-    if "win_count" not in leaderboard[player_list[0]].keys():
-        leaderboard[player_list[0]]["win_count"] = 1
+    
+    with open("leaderboard.json", "r") as f:
+        leaderboard = json.load(f)
+    if player_list[0] not in leaderboard.keys():
+        leaderboard[player_list[0]] = {
+            "username" : players[player_list[0]]["username"],
+            "win_count" : 1,
+            "money" : players[player_list[0]]["cash"],
+            "games" : [game_name]
+        }
     else:
         leaderboard[player_list[0]]["win_count"] += 1
+        leaderboard[player_list[0]]["money"] = max(players[player_list[0]]["cash"], leaderboard[player_list[0]]["money"])
+        leaderboard[player_list[0]]["games"].append(game_name)
+    with open("leaderboard.json", "w", encoding="utf-8") as f:
+        json.dump(leaderboard, f, ensure_ascii=False, indent=4)
+    
+    os.remove(path)
+    os.remove(path_)
+    os.remove(path__)
+    os.rmdir(path___)
 
-    if "money" not in leaderboard[player_list[0]].keys():
-        leaderboard[player_list[0]]["money"] = players[player_list[0]]["cash"]
-    else:
-        leaderboard[player_list[0]]["money"] = max(players[player_list[0]]["cash"], leaderboard[player_list[0]]["money"]) 
     exit()
 
 while True:

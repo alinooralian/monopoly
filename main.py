@@ -16,7 +16,7 @@ with open("users.json", "r") as f:
     except json.JSONDecodeError:
         users = {}
 
-players = {}
+palyers = {}
 
 pygame.mixer.init()
 NAV_SOUND = pygame.mixer.Sound('menu_navigate_01.wav')
@@ -158,13 +158,21 @@ def game(path):
     path__ = path / "tile_information.json"
     with open(path__, "r", encoding="utf-8") as f:
             tile_information = json.load(f)
-
+    path = path / f"{game_name}.json"
+    
     def jail_check(player_name): #check players jail status
         if players[player_name]["jail"] == True:
             in_jail(player_name) #player is in jail
         
         else:
             out_jail(player_name) #player is out of jail
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def in_jail(player_name):
@@ -179,6 +187,7 @@ def game(path):
 
         elif players[player_name]["dice_counter"] > 0: #player has option to roll dice to get out of jail
             chosen_option = input("enter\n\t1.to roll dice\n\t2.to pay 50$\n")
+            SELECT_SOUND.play()
             if chosen_option == "1":
                 roll_dice_jail(player_name)
             
@@ -200,6 +209,12 @@ def game(path):
                 die1 , die2 = dice()
                 if pair_dice(die1 , die2 , player_name) == True:
                     move_to(player_name , die1 + die2)
+        with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def roll_dice_jail(player_name):
@@ -211,18 +226,40 @@ def game(path):
         
         else: #still stay in jail
             players[player_name]["dice_counter"] -= 1
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def out_jail(player_name):
         die1 , die2 = dice()
         if pair_dice(die1 , die2 , player_name) == True:
             move_to(player_name , die1 + die2)
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def dice():
+        input("Press any key for dice\n")
+        SELECT_SOUND.play()
         die1 = random.randint(1 , 6)
         die2 = random.randint(1 , 6)
         print(f"YOUR DICE ARE: {die1} , {die2}")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return die1 , die2
 
 
@@ -231,13 +268,31 @@ def game(path):
             if double_dice_counter == 2:
                 print("YOU ROLLED DOUBLES THREE TIMES IN A ROW, YOU GO TO JAIL!")
                 gotojail(player_name)
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(players, f, ensure_ascii=False, indent=4)
+                with open(path_, "w", encoding="utf-8") as f:
+                    json.dump(tiles, f, ensure_ascii=False, indent=4)
+                with open(path__, "w", encoding="utf-8") as f:
+                    json.dump(tile_information, f, ensure_ascii=False, indent=4)
                 return False
             
             else:
                 # global double_dice
                 double_dice = True
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(players, f, ensure_ascii=False, indent=4)
+                with open(path_, "w", encoding="utf-8") as f:
+                    json.dump(tiles, f, ensure_ascii=False, indent=4)
+                with open(path__, "w", encoding="utf-8") as f:
+                    json.dump(tile_information, f, ensure_ascii=False, indent=4)
                 return True
-        
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return True
 
 
@@ -246,11 +301,23 @@ def game(path):
             players[debtor]["cash"] -= value
             players[creditor]["cash"] += value
             print("your payment was successful")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+            with open(path_, "w", encoding="utf-8") as f:
+                json.dump(tiles, f, ensure_ascii=False, indent=4)
+            with open(path__, "w", encoding="utf-8") as f:
+                json.dump(tile_information, f, ensure_ascii=False, indent=4)
             return True
         
         else:
             if status == "optional":
                 print("you don't have enough money to pay")
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(players, f, ensure_ascii=False, indent=4)
+                with open(path_, "w", encoding="utf-8") as f:
+                    json.dump(tiles, f, ensure_ascii=False, indent=4)
+                with open(path__, "w", encoding="utf-8") as f:
+                    json.dump(tile_information, f, ensure_ascii=False, indent=4)
                 return False
             
             while players[debtor]["cash"] < value:
@@ -259,21 +326,46 @@ def game(path):
                     players[creditor]["cash"] += players[debtor]["cash"]
                     players[debtor]["cash"] = 0
                     player_list.remove(debtor)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def sell_property(player_name):
         if players[player_name]["property"] == {}:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+            with open(path_, "w", encoding="utf-8") as f:
+                json.dump(tiles, f, ensure_ascii=False, indent=4)
+            with open(path__, "w", encoding="utf-8") as f:
+                json.dump(tile_information, f, ensure_ascii=False, indent=4)
             return False
         
         print(players[player_name]["property"])
-        chosen_option = int(input("enter the position of property you want to sell:\n"))
+        chosen_option = input("enter the position of property you want to sell:\n")
+        SELECT_SOUND.play()
         players[player_name]["cash"] += sell_price(player_name , chosen_option)
         players[player_name]["property"].pop(chosen_option)
         tiles[chosen_option]["owner"] = "bank"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return True
 
 
     def sell_price(player_name , pos):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return (tile_information[str(pos)]["buy_price"] + (players[player_name]["property"][str(pos)] * tile_information[str(pos)]["house_price"])) // 2
 
 
@@ -284,6 +376,12 @@ def game(path):
         players[player_name]["position"] = (players[player_name]["position"] + step) % 40
         print(f"YOUR CURRENT POSITION IS: {players[player_name]["position"]}")
         tile_check(player_name , step)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def tile_check(player_name , step): #define tile's type and related function
@@ -311,54 +409,101 @@ def game(path):
         
         else:
             pass
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def street(player_name , pos):
         print("YOU ARE IN A STREET!")
         if tiles[str(pos)]["owner"] == "bank":
             chosen_option = input("enter\n\t1.to buy\n\t2.to pass\n")
+            SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , tile_information[str(pos)]["buy_price"] , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
                     players[player_name]["property"][str(pos)] = 0
         
         elif tiles[str(pos)]["owner"] != player_name:
-            print(f"this street is for {tiles[str(pos)]["owner"]}")
-            pay(player_name , tiles[str(pos)]["owner"] , tile_information[str(pos)][ players[ tiles[str(pos)]["owner"] ]["property"][pos] ] , "mandatory")
+            print(f"this street is for {players[tiles[str(pos)]["owner"]]["username"]}")
+            pay(player_name , tiles[str(pos)]["owner"] , tile_information[str(pos)][str(players[tiles[str(pos)]["owner"]]["property"][str(pos)])] , "mandatory")\
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def build_house(player_name):
         if players[player_name]["property"] != {}:
             chosen_option = input("enter\n\t1.to build a house\n\t2.to pass\n")
+            SELECT_SOUND.play()
             if chosen_option == "1":
                 print(players[player_name]["property"])
-                chosen_option = int(input("enter the position of property you want to build a house:\n"))
+                chosen_option = input("enter the position of property you want to build a house:\n")
+                SELECT_SOUND.play()
                 if build_house_check(player_name , chosen_option) == True and players[player_name]["property"][chosen_option] != 5:
                     if pay(player_name , "bank" , tile_information[chosen_option]["house_price"] , "optional") == True:
                         players[player_name]["property"][chosen_option] += 1
                 else:
                     print("YOU CAN'T BUILD A HOUSE HERE")
                     build_house(player_name)
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def build_house_check(player_name , pos):
         color_owners = [tiles[i]["owner"] for i in color_index(tile_information[str(pos)]["color"])]
         if (color_owners.count(player_name) == len(color_owners)
-            and players[player_name]["property"][pos] == min([players[player_name]["property"][i] for i in color_owners]) ): 
+            and players[player_name]["property"][str(pos)] == min([players[player_name]["property"][i] for i in color_owners]) ): 
             # if player owns all of the color and the stage of position is minimum
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+            with open(path_, "w", encoding="utf-8") as f:
+                json.dump(tiles, f, ensure_ascii=False, indent=4)
+            with open(path__, "w", encoding="utf-8") as f:
+                json.dump(tile_information, f, ensure_ascii=False, indent=4)
             return True
         
         else:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+            with open(path_, "w", encoding="utf-8") as f:
+                json.dump(tiles, f, ensure_ascii=False, indent=4)
+            with open(path__, "w", encoding="utf-8") as f:
+                json.dump(tile_information, f, ensure_ascii=False, indent=4)
             return False
 
 
     def color_index(color):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return [x for x in tile_information if tiles[x]["type"] == "street" and tile_information[x].get("color" , False) == color]
 
 
     def community_chest(player_name):
         print("YOU ARE IN A COMMUNITY CHEST TILE!")
         community_card_coming(player_name)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def tax(player_name , pos): #tax tiles
@@ -369,6 +514,13 @@ def game(path):
         elif pos == 38:
             print("YOU ARE IN LUXURY-TAX TILE!")
             pay(player_name , "bank" , 100 , "mandatory")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def train(player_name , pos , status): #train stations / status can be main or chance
@@ -382,20 +534,40 @@ def game(path):
         
         elif tiles[str(pos)]["owner"] == "bank":
             chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+            SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 200 , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
-                    players[player_name]["property"][pos] = None
+                    players[player_name]["property"][str(pos)] = None
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
             
 
     def train_own_count(owner): #count how many stations owner got
         owners = [tiles[i]["owner"] for i in [5 , 15 , 25 , 35]]
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
         return owners.count(owner)
 
 
     def chance(player_name):
         print("YOU ARE IN A CHANCE TILE!")
         chance_card_coming(player_name)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def electric_water(player_name , pos , step , status): #electric company and water works / status can be main or chance
@@ -415,10 +587,18 @@ def game(path):
 
         elif tiles[str(pos)]["owner"] == "bank":
             chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+            SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 150 , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
-                    players[player_name]["property"][pos] = None
+                    players[player_name]["property"][str(pos)] = None
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
             
 
     def switch_electric_water(pos): #switches between electric company and water works
@@ -428,6 +608,12 @@ def game(path):
         elif pos == 28: #water works position
             return 12
         
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
     def gotojail(player_name): #go to jail tile
         print("YOU GO TO JAIL!")
@@ -435,6 +621,13 @@ def game(path):
         players[player_name]["position"] = 10 # jail position
         # global double_dice
         double_dice = False
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
 
@@ -444,12 +637,26 @@ def game(path):
         if players[player_name]["position"] > pos:
             players[player_name]["cash"] += 200
         players[player_name]["position"] = pos
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def nearest_railroad(player_name):
         station = ((players[player_name]["position"] // 10) * 10) + 5
         players[player_name]["position"] = station
         train(player_name , station , "chance")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def nearest_utility(player_name):
@@ -459,10 +666,24 @@ def game(path):
             utility = 28
         players[player_name]["position"] = utility
         electric_water(player_name , utility , 0 , "chance")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def give_jail_card(player_name):
         players[player_name]["get_out_of_jail_card"] = True
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def pay_per_house(player_name , house , hotel):
@@ -474,16 +695,37 @@ def game(path):
                 cost += (stage * house)
         
         pay(player_name , "bank" , cost , "mandatory")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def pay_each_player(player_name):
         for p in player_list:
             pay(player_name , p , 50 , "mandatory")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def collect_each_player(player_name):
         for p in player_list:
             pay(p , player_name , 10 , "mandatory")
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
 
@@ -492,12 +734,26 @@ def game(path):
         card = random.choice(chance_cards)
         print("🎲 Chance:", card["text"])
         card["action"](player_name)
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     def community_card_coming(player_name):
         card = random.choice(community_chest_cards)
         print("📦 Community Chest:", card["text"])
         card["action"](player_name)
+        
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+        with open(path_, "w", encoding="utf-8") as f:
+            json.dump(tiles, f, ensure_ascii=False, indent=4)
+        with open(path__, "w", encoding="utf-8") as f:
+            json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
     chance_cards = [
@@ -550,7 +806,7 @@ def game(path):
 
     player_list = list(players.keys())
     player_list.remove("bank")
-    player = player_list[0]
+    player = players["turn"]
     double_dice_counter = 0
 
     while len(player_list) > 1:
@@ -560,11 +816,29 @@ def game(path):
         jail_check(player)
         if double_dice == False:
             player = player_list[(player_list.index(player) + 1) % len(player_list)]
+            players["turn"] = player
+            
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
+
             double_dice_counter = 0
         else:
             double_dice_counter += 1
+        clean(5)
 
-    print(f"Wow! {playesr[player_list[0]]["username"]} won this game.")
+    print(f"Wow! {players[player_list[0]]["username"]} won this game.")
+    leaderboard[player_list[0]] = {
+        "username" : players[player_list[0]]["username"]
+    }
+    if "win_count" not in leaderboard[player_list[0]].keys():
+        leaderboard[player_list[0]]["win_count"] = 1
+    else:
+        leaderboard[player_list[0]]["win_count"] += 1
+
+    if "money" not in leaderboard[player_list[0]].keys():
+        leaderboard[player_list[0]]["money"] = players[player_list[0]]["cash"]
+    else:
+        leaderboard[player_list[0]]["money"] = max(players[player_list[0]]["cash"], leaderboard[player_list[0]]["money"]) 
     exit()
 
 while True:
@@ -605,6 +879,8 @@ while True:
             players["bank"] = {
                 "cash" : float(1e18)
             }
+            p = list(players.keys())
+            players["turn"] = p[0]
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
             path = Path(__file__).parent / "old_games" / game_name
@@ -624,7 +900,7 @@ while True:
             players = json.load(f)
         
         cnt = len(players)
-        if cnt == 5:
+        if cnt == 6:
             cnt = 4
             while cnt:
                 while not login(path, 2):
@@ -660,6 +936,8 @@ while True:
             players["bank"] = {
                 "cash" : float(1e18)
             }
+            p = list(players.keys())
+            players["turn"] = p[0]
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
             path = Path(__file__).parent / "old_games" / game_name

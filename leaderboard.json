@@ -1,0 +1,18 @@
+{
+    "f3915239-5937-42d8-93b9-82676eec28a6": {
+        "username": "alinoor",
+        "win_count": 1,
+        "money": 1500,
+        "games": [
+            "test"
+        ]
+    },
+    "bc48275e-a6db-4d4d-9e73-553c220641a6": {
+        "username": "mahshid",
+        "win_count": 1,
+        "money": 1700,
+        "games": [
+            "test1"
+        ]
+    }
+}

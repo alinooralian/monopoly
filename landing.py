@@ -14,21 +14,30 @@ with open("users.json", "r") as f:
 
 players = dict()
 
+def clean():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def first_menu():
     print("1.New Game")
     print("2.Load Game")
     print("3.Leaderboard")
     print("4.Exit")
     key = input()
+
+    clean()
     
     return key
 
 def new_game_menu():
     while True:
         game_name = input("Enter your game name: ") + ".json"
+        clean()
+        
         path = Path(__file__).parent / "old_games" / game_name
         if path.exists():
             print("This game already exists.")
+            time.sleep(1)
+            clean()
         else:
             with open(path, "w", encoding="utf-8") as f:
                 pass
@@ -49,6 +58,8 @@ def new_game_menu():
         print("3.Exit")
         key = input()
         
+        clean()
+        
         if key == '1':
             while True:
                 if signup(path):
@@ -65,8 +76,9 @@ def new_game_menu():
 
 def load_game_menu():
     game_name = input("Enter your game name: ") + ".json"
+    clean()
+    
     path = Path(__file__).parent / "old_games" / game_name
-
     with open(path, "r", encoding="utf-8") as f:
         try:
             players = json.load(f)
@@ -75,6 +87,9 @@ def load_game_menu():
 
     if len(players) < 4:
         print(f"You have fewer than 4 players. {4 - len(players)} more people must register first.")
+        time.sleep(2)
+        clean()
+        
         cnt = 4 - len(players)
         while cnt:
             while True:
@@ -83,7 +98,9 @@ def load_game_menu():
             cnt -= 1
         
         print("Now you can log in to your account to continue playing.")
-
+        time.sleep(2)
+        clean()
+        
     cnt = 1
     while cnt <= 4:
         while True:
@@ -102,19 +119,29 @@ def signup(path):
     username = input("Enter your username: ")
     password = input("Enter your password: ")
     email = input("Enter your email: ")
+    clean()
     
     for i in users:
         if users[i][0] == username:
             print("This username is already registered.")
+            time.sleep(1)
+            clean()
+            
             return False
     
     pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
     if not re.match(pattern, email):
         print("This email is invalid.")
+        time.sleep(1)
+        clean()
+            
         return False
     
     if len(password) < 8:
         print("Password length must be at least 8 characters.")
+        time.sleep(1)
+        clean()
+            
         return False
     
     userid = str(uuid.uuid4())
@@ -137,12 +164,16 @@ def signup(path):
         json.dump(players, f, ensure_ascii=False, indent=4)
     
     print(f"Hello {username}! You are ready to play.")
+    time.sleep(1)
+    clean()
+            
     return True
 
 def login(path, Type):
     username = input("Enter your username: ")
     password = input("Enter your password: ")
-    
+    clean()
+            
     check = False
     if Type == 1:
         for i in users:
@@ -162,6 +193,10 @@ def login(path, Type):
                     }
                     with open(path, "w", encoding="utf-8") as f:
                         json.dump(players, f, ensure_ascii=False, indent=4)
+                        
+                    print(f"Hello {username}! You are ready to play.")
+                    time.sleep(1)
+                    clean()
                     return True
                 break
     else:
@@ -169,13 +204,19 @@ def login(path, Type):
             if players[i]["username"] == username:
                 check = True
                 if check_password(password, players[i]["password"]):
+                    print(f"Hello {username}! You are ready to play.")
+                    time.sleep(1)
+                    clean()
                     return True
     if check:
         print("The password is invalid.")
+        time.sleep(1)
+        clean()
     else:
         print("Username not found.")
-    
-    print(f"Hello {username}! You are ready to play.")
+        time.sleep(1)
+        clean()
+                    
     return False
 
 

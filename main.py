@@ -57,7 +57,7 @@ def hash_password(password):
 def check_password(input_password, stored_hash):
     return bcrypt.checkpw(input_password.encode("utf-8"), stored_hash.encode("utf-8"))
 
-def signup(path):
+def signup(path, num):
     username = input("Enter your username: ")
     SELECT_SOUND.play()
     password = input("Enter your password: ")
@@ -89,6 +89,7 @@ def signup(path):
     players[userid] = {
         "username": username,
         "password": hpassword,
+        "player_num": num,
         "position": 0,
         "cash": 1500,
         "jail": False,
@@ -105,7 +106,7 @@ def signup(path):
     clean(1)
     return True
 
-def login(path, Type):
+def login(path, num, Type):
     username = input("Enter your username: ")
     SELECT_SOUND.play()
     password = input("Enter your password: ")
@@ -121,6 +122,7 @@ def login(path, Type):
                     players[i] = {
                         "username": username,
                         "password": users[i][1],
+                        "player_num": num,
                         "position": 0,
                         "cash": 1500,
                         "jail": False,
@@ -162,6 +164,57 @@ def game(path):
             tile_information = json.load(f)
     path___ = path
     path = path / f"{game_name}.json"
+    
+    def boardgame(pos):
+        cell_width = 10
+        player_positions = {'p1': pos[0], 'p2': pos[1], 'p3': pos[2], 'p4': pos[3]}  # Update positions as the game progresses
+
+        def get_players(pos, player_positions):
+            players = [p for p, pp in player_positions.items() if pp == pos]
+            return ' '.join(players)
+
+        def print_horizontal_border(num_cells, cell_width):
+            return '+' + ('-' * cell_width + '+') * num_cells
+
+        def print_line(content, cell_width, num_cells):
+            line = ''
+            for i in range(num_cells):
+                line += '|' + content[i].center(cell_width)
+            line += '|'
+            return line
+
+        # Top side
+        top_positions = list(range(20, 31))
+        top_players = [get_players(i, player_positions) for i in top_positions]
+        print(print_horizontal_border(11, cell_width))
+        print(print_line(top_players, cell_width, 11))
+        print(print_horizontal_border(11, cell_width))
+
+        # Middle sides
+        left_positions = list(reversed(range(11, 20)))
+        right_positions = list(range(31, 40))
+        left_players = [get_players(i, player_positions) for i in left_positions]
+        right_players = [get_players(i, player_positions) for i in right_positions]
+        total_width = cell_width * 11 + 12
+        blank_space = total_width - 2 * (cell_width + 2)
+        for i in range(9):
+            left_play = left_players[i]
+            right_play = right_players[i]
+            border = '+' + '-' * cell_width + '+' + ' ' * blank_space + '+' + '-' * cell_width + '+'
+            name_line = '|' + ' ' * 10 +'|' + ' ' * blank_space + '|' + ' ' * 10 + '|'
+            player_line = '|' + left_play.center(cell_width) + '|' + ' ' * blank_space + '|' + right_play.center(cell_width) + '|'
+            print(border)
+            print(name_line)
+            print(player_line)
+            print(border)
+
+        # Bottom side
+        bottom_positions = list(reversed(range(0, 11)))
+        bottom_players = [get_players(i, player_positions) for i in bottom_positions]
+        print(print_horizontal_border(11, cell_width))
+        print(print_line(bottom_players, cell_width, 11))
+        print(print_horizontal_border(11, cell_width))
+
     
     def jail_check(player_name): #check players jail status
         if players[player_name]["jail"] == True:
@@ -252,7 +305,7 @@ def game(path):
 
 
     def dice():
-        input("Press any key for dice\n")
+        input("Press ENTER key for dice\n")
         SELECT_SOUND.play()
         die1 = random.randint(1 , 6)
         die2 = random.randint(1 , 6)
@@ -378,6 +431,14 @@ def game(path):
         
         players[player_name]["position"] = (players[player_name]["position"] + step) % 40
         print(f"YOUR CURRENT POSITION IS: {players[player_name]["position"]}")
+        time.sleep(2)
+        
+        my_list = []
+        for i in player_list:
+            my_list.append(players[i]["position"])
+        boardgame(my_list)
+        time.sleep(2)
+        
         tile_check(player_name , step)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(players, f, ensure_ascii=False, indent=4)
@@ -798,7 +859,7 @@ def game(path):
     ]
 
     def print_player(id):
-        print(f"{players[id]["username"]}: ")
+        print(f"{players[id]["username"]} -> p{players[id]["player_num"]}: ")
         print(f"    Position: {players[id]["position"]}")
         print(f"    Cash: {players[id]["cash"]}")
         print(f"    Jail: {players[id]["jail"]}")
@@ -809,27 +870,30 @@ def game(path):
 
     player_list = list(players.keys())
     player_list.remove("bank")
+    player_list.remove("turn")
     player = players["turn"]
     double_dice_counter = 0
 
-    # while len(player_list) > 1:
-    #     print_player(player)
-    #     double_dice = False
-    #     build_house(player)
-    #     jail_check(player)
-    #     if double_dice == False:
-    #         player = player_list[(player_list.index(player) + 1) % len(player_list)]
-    #         players["turn"] = player
+    while len(player_list) > 1:
+        print_player(player)
+        double_dice = False
+        build_house(player)
+        jail_check(player)
+        if double_dice == False:
+            player = player_list[(player_list.index(player) + 1) % len(player_list)]
+            players["turn"] = player
             
-    #         with open(path, "w", encoding="utf-8") as f:
-    #             json.dump(players, f, ensure_ascii=False, indent=4)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(players, f, ensure_ascii=False, indent=4)
 
-    #         double_dice_counter = 0
-    #     else:
-    #         double_dice_counter += 1
-    #     clean(5)
+            double_dice_counter = 0
+        else:
+            double_dice_counter += 1
+        
+        input("Press ENTER to next round\n")
+        clean(3)
 
-    print(f"Wow! {players[player_list[0]]["username"]} won this game.")
+    print(f"Wow! {players[player_list[0]]["username"]} -> p{players[player_list[0]]["player_num"]} won this game.")
     
     with open("leaderboard.json", "r") as f:
         leaderboard = json.load(f)
@@ -875,18 +939,19 @@ while True:
                     json.dump({}, f, ensure_ascii=False, indent=4)
                 players = {}
                 break
-        
+        cnt = 1
         while len(players) < 4:
             sub_choice = menu(["Signup", "Login", "Back"])
             clean(0)
             if sub_choice == "Back":
                 break
             elif sub_choice == "Signup":
-                while not signup(path):
+                while not signup(path, cnt):
                     pass
             elif sub_choice == "Login":
-                while not login(path, 1):
+                while not login(path, cnt, 1):
                     pass
+            cnt += 1
         
         if len(players) == 4:
             players["bank"] = {
@@ -916,34 +981,37 @@ while True:
         if cnt == 6:
             cnt = 4
             while cnt:
-                while not login(path, 2):
+                while not login(path, cnt, 2):
                     pass
                 cnt -= 1
             path = Path(__file__).parent / "old_games" / game_name
             game(path)
             break
+
         print(f"First, {cnt} players must log in to their accounts.")
         clean(2)
         while cnt:
-            while not login(path, 2):
+            while not login(path, cnt, 2):
                 pass
             cnt -= 1
         
         cnt = 4 - len(players)
         print(f"Now you need to add {cnt} more players to this game.")
         clean(2)
+        i = cnt + 1
         while cnt:
             sub_choice = menu(["Signup", "Login", "Back"])
             clean(0)
             if sub_choice == "Back":
                 break
             elif sub_choice == "Signup":
-                while not signup(path):
+                while not signup(path, i):
                     pass
             elif sub_choice == "Login":
-                while not login(path, 1):
+                while not login(path, i, 1):
                     pass
             cnt -= 1
+            i += 1
             
         if len(players) == 4:
             players["bank"] = {

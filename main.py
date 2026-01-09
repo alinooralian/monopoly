@@ -891,6 +891,7 @@ def game(path):
             double_dice_counter += 1
         
         input("Press ENTER to next round\n")
+        SELECT_SOUND.play()
         clean(3)
 
     print(f"Wow! {players[player_list[0]]["username"]} -> p{players[player_list[0]]["player_num"]} won this game.")

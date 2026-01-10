@@ -597,7 +597,7 @@ def game(path):
                 pay(player_name , tiles[str(pos)]["owner"] , 50 * (2 ** (train_own_count(tiles[str(pos)]["owner"]) - 1)) , "mandatory")
         
         elif tiles[str(pos)]["owner"] == "bank":
-            chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+            chosen_option = input("enter\n\t1.to buy\n\t2.to pass\n")
             SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 200 , "optional") == True:
@@ -650,7 +650,7 @@ def game(path):
                 pay(player_name , tiles[str(pos)]["owner"] , 10 * (die1 + die2) , "mandatory")
 
         elif tiles[str(pos)]["owner"] == "bank":
-            chosen_option = int(input("enter\n\t1.to buy\n\t2.to pass\n"))
+            chosen_option = input("enter\n\t1.to buy\n\t2.to pass\n")
             SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 150 , "optional") == True:
@@ -930,6 +930,7 @@ def game(path):
         R += 1
     
     input("Press ENTER for exit\n")
+    SELECT_SOUND.paly()
     
     os.remove(path)
     os.remove(path_)
@@ -1050,6 +1051,7 @@ while True:
         if len(info) == 0:
             print("Leaderboard is empty.")
             input("Press ENTER for return\n")
+            SELECT_SOUND.play()
             continue
         space = ' ' * 8
         print(f"Rate{space}Name{space}Wins{space}Maximum Money")
@@ -1065,5 +1067,6 @@ while True:
             R += 1
         
         input("Press ENTER for return\n")
+        SELECT_SOUND.play()
     elif choice == "Exit":
         exit()

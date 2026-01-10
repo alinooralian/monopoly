@@ -895,6 +895,7 @@ def game(path):
         clean(3)
 
     print(f"Wow! {players[player_list[0]]["username"]} -> p{players[player_list[0]]["player_num"]} won this game.")
+    clean(5)
     
     with open("leaderboard.json", "r") as f:
         leaderboard = json.load(f)
@@ -911,6 +912,24 @@ def game(path):
         leaderboard[player_list[0]]["games"].append(game_name)
     with open("leaderboard.json", "w", encoding="utf-8") as f:
         json.dump(leaderboard, f, ensure_ascii=False, indent=4)
+    
+    with open("leaderboard.json", "r", encoding="utf-8") as f:
+        info = json.load(f)
+        
+    space = ' ' * 8
+    print(f"Rate{space}Name{space}Wins{space}Maximum Money")
+
+    row = []
+    for key in info.keys():
+        row.append((info[key]["win_count"], info[key]["money"], info[key]["username"]))
+
+    leaderboard = sorted(row, reverse=True)
+    R = 1
+    for i in range(len(leaderboard)):
+        print(f"{R}{space}{leaderboard[i][2]}{space}{leaderboard[i][0]}{space}{leaderboard[i][1]}")
+        R += 1
+    
+    input("Press ENTER for exit\n")
     
     os.remove(path)
     os.remove(path_)
@@ -965,7 +984,6 @@ while True:
             path = Path(__file__).parent / "old_games" / game_name
             game(path)
             break
-    
     elif choice == "Load Game":
         game_name = input("Enter your game name: ")
         SELECT_SOUND.play()
@@ -1025,6 +1043,27 @@ while True:
             path = Path(__file__).parent / "old_games" / game_name
             game(path)
             break
-    
+    elif choice == "Leaderboard":
+        with open("leaderboard.json", "r", encoding="utf-8") as f:
+            info = json.load(f)
+
+        if len(info) == 0:
+            print("Leaderboard is empty.")
+            input("Press ENTER for return\n")
+            continue
+        space = ' ' * 8
+        print(f"Rate{space}Name{space}Wins{space}Maximum Money")
+
+        row = []
+        for key in info.keys():
+            row.append((info[key]["win_count"], info[key]["money"], info[key]["username"]))
+
+        leaderboard = sorted(row, reverse=True)
+        R = 1
+        for i in range(len(leaderboard)):
+            print(f"{R}{space}{leaderboard[i][2]}{space}{leaderboard[i][0]}{space}{leaderboard[i][1]}")
+            R += 1
+        
+        input("Press ENTER for return\n")
     elif choice == "Exit":
         exit()

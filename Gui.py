@@ -85,6 +85,7 @@ entry_font = ("Comic Sans MS", 11)
 button_font = ("Comic Sans MS", 12, "bold")
 
 tk.Label(window, text="🎀 Monopoly Login 🎀", bg="#FFF0F5", fg="#FF69B4", font=header_font).pack(pady=15)
+
 button_style = {
     "width": 18,
     "height": 2,

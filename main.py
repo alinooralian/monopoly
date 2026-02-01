@@ -155,7 +155,7 @@ def login(path, num, Type):
     else:
         for i in players.keys():
             if i == "bank" or i == "turn":
-                break
+                continue
             if players[i]["username"] == username:
                 check = True
                 if check_password(password, players[i]["password"]):
@@ -1094,6 +1094,10 @@ def game(path):
 
     exit()
 
+pth = Path(__file__).parent / "old_games"
+if not pth.exists():
+    os.mkdir(Path(__file__).parent / "old_games")
+
 while True:
     choice = menu(["New Game", "Load Game", "Leaderboard", "About Monopoly", "About Us", "Exit"])
     clean(0)
@@ -1119,10 +1123,12 @@ while True:
         SELECT_SOUND.play()
         clean(0)
         cnt = 1
+        CHECK = False
         while len(players) < RP:
             sub_choice = menu(["Signup", "Login", "Back"])
             clean(0)
             if sub_choice == "Back":
+                CHECK = True
                 break
             elif sub_choice == "Signup":
                 while not signup(path, cnt):
@@ -1132,7 +1138,8 @@ while True:
                     pass
             cnt += 1
         
-        player_maker(4 - RP)
+        if not CHECK:
+            player_maker(4 - RP)
         
         if len(players) == 4:
             players["bank"] = {
@@ -1184,10 +1191,12 @@ while True:
         print(Fore.YELLOW + f"Now you need to add {cnt} more players to this game." + Style.RESET_ALL)
         clean(3)
         i = len(players) + 1
+        CHECK = False
         while cnt:
             sub_choice = menu(["Signup", "Login", "Back"])
             clean(0)
             if sub_choice == "Back":
+                CHECK = True
                 break
             elif sub_choice == "Signup":
                 while not signup(path, i):
@@ -1197,7 +1206,10 @@ while True:
                     pass
             cnt -= 1
             i += 1
-        player_maker(4 - RP)
+        
+        if not CHECK:
+            player_maker(4 - RP)
+
         if len(players) == 4:
             players["bank"] = {
                 "cash" : float(1e18)

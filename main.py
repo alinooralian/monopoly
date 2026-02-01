@@ -101,6 +101,7 @@ def signup(path, num):
     players[userid] = {
         "username": username,
         "password": hpassword,
+        "is_bot": False,
         "color": PLAYERS_COLORS[f"P{num}"],
         "player_num": num,
         "position": 0,
@@ -135,6 +136,7 @@ def login(path, num, Type):
                     players[i] = {
                         "username": username,
                         "password": users[i][1],
+                        "is_bot": False,
                         "color": PLAYERS_COLORS[f"P{num}"],
                         "player_num": num,
                         "position": 0,
@@ -169,6 +171,36 @@ def login(path, num, Type):
         clean(2)
     return False
 
+def player_maker(cnt):
+    usernames = ["Michael", "Nicholas", "Abraham", "Jacob"]
+    while cnt:
+        num = 5 - cnt
+        userid = str(uuid.uuid4())
+        username = usernames[cnt - 1]
+        password = hash_password(usernames[cnt] + "2007")
+        players[userid] = {
+            "username": username,
+            "password": password,
+            "is_bot": True,
+            "color": PLAYERS_COLORS[f"P{num}"],
+            "player_num": num,
+            "position": 0,
+            "cash": 1500,
+            "jail": False,
+            "get_out_of_jail_card": False,
+            "dice_counter": 3,
+            "property": {}
+        }
+        with open("users.json", "w", encoding="utf-8") as f:
+            json.dump(users, f, ensure_ascii=False, indent=4)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(players, f, ensure_ascii=False, indent=4)
+    
+        cnt -= 1
+
+    print(Fore.MAGENTA + "Bot players were created." + Style.RESET_ALL)
+    clean(3)
+        
 def game(path):
     path_ = path / "tiles.json"
     with open(path_, "r", encoding="utf-8") as f:
@@ -272,13 +304,19 @@ def game(path):
             print(Fore.GREEN + "YOU HAVE 'GET OUT OF JAIL CHANCE CARD' " + Style.RESET_ALL)
             players[player_name]["get_out_of_jail_card"] = False
             players[player_name]["jail"] = False
-            die1 , die2 = dice()
+            die1 , die2 = dice(player_name)
             if pair_dice(die1 , die2 , player_name) == True:
                 move_to(player_name , die1 + die2)
 
         elif players[player_name]["dice_counter"] > 0: #player has option to roll dice to get out of jail
-            chosen_option = input(Fore.YELLOW + "enter\n\t1.to roll dice\n\t2.to pay 50$\n" + Style.RESET_ALL)
-            SELECT_SOUND.play()
+            if players[player_name]["is_bot"]:
+                chosen_option = "1"
+                print(Fore.YELLOW + "enter\n\t1.to roll dice\n\t2.to pay 50$\n" + Style.RESET_ALL)
+                time.sleep(1)
+                print("1\n")
+            else:
+                chosen_option = input(Fore.YELLOW + "enter\n\t1.to roll dice\n\t2.to pay 50$\n" + Style.RESET_ALL)
+                SELECT_SOUND.play()
             if chosen_option == "1":
                 roll_dice_jail(player_name)
             
@@ -286,7 +324,7 @@ def game(path):
                 if pay(player_name , "bank" , 50 , "optional") == True: #if successful: get out of jail
                     players[player_name]["jail"] = False
                     players[player_name]["dice_counter"] = 3
-                    die1 , die2 = dice()
+                    die1 , die2 = dice(player_name)
                     if pair_dice(die1 , die2 , player_name) == True:
                         move_to(player_name , die1 + die2)  
                 
@@ -297,7 +335,7 @@ def game(path):
             if pay(player_name , "bank" , 50 , "mandatory") == True:
                 players[player_name]["jail"] = False
                 players[player_name]["dice_counter"] = 3
-                die1 , die2 = dice()
+                die1 , die2 = dice(player_name)
                 if pair_dice(die1 , die2 , player_name) == True:
                     move_to(player_name , die1 + die2)
         with open(path, "w", encoding="utf-8") as f:
@@ -309,7 +347,7 @@ def game(path):
 
 
     def roll_dice_jail(player_name):
-        die1 , die2 = dice()
+        die1 , die2 = dice(player_name)
         if die1 == die2: #dice are pair and get out of jail
             players[player_name]["jail"] = False
             players[player_name]["dice_counter"] = 3
@@ -327,7 +365,7 @@ def game(path):
 
 
     def out_jail(player_name):
-        die1 , die2 = dice()
+        die1 , die2 = dice(player_name)
         if pair_dice(die1 , die2 , player_name) == True:
             move_to(player_name , die1 + die2)
         
@@ -339,9 +377,10 @@ def game(path):
             json.dump(tile_information, f, ensure_ascii=False, indent=4)
 
 
-    def dice():
-        input(Fore.CYAN + "Press ENTER key for dice\n" + Style.RESET_ALL)
-        SELECT_SOUND.play()
+    def dice(player_name):
+        if players[player_name]["is_bot"] == False:
+            input(Fore.CYAN + "Press ENTER key for dice\n" + Style.RESET_ALL)
+            SELECT_SOUND.play()
         die1 = random.randint(1 , 6)
         die2 = random.randint(1 , 6)
         print(f"YOUR DICE ARE: {die1} , {die2}")
@@ -436,8 +475,15 @@ def game(path):
             return False
         
         print(players[player_name]["property"])
-        chosen_option = input(Fore.YELLOW + "enter the position of property you want to sell:\n" + Style.RESET_ALL)
-        SELECT_SOUND.play()
+        if players[player_name]["is_bot"]:
+            bcp = random.ranint(0, len(players[player_name]["property"]) - 1)
+            chosen_option = str(bcp)
+            print(Fore.YELLOW + "enter the position of property you want to sell:\n" + Style.RESET_ALL)
+            time.sleep(1)
+            print(f"{str(bcp)}\n")
+        else:
+            chosen_option = input(Fore.YELLOW + "enter the position of property you want to sell:\n" + Style.RESET_ALL)
+            SELECT_SOUND.play()
         players[player_name]["cash"] += sell_price(player_name , chosen_option)
         players[player_name]["property"].pop(chosen_option)
         tiles[chosen_option]["owner"] = "bank"
@@ -519,8 +565,14 @@ def game(path):
     def street(player_name , pos):
         print("YOU ARE IN A STREET!")
         if tiles[str(pos)]["owner"] == "bank":
-            chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
-            SELECT_SOUND.play()
+            if players[player_name]["is_bot"]:
+                chosen_option = "2"
+                print(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                time.sleep(1)
+                print("2\n")
+            else:
+                chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , tile_information[str(pos)]["buy_price"] , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
@@ -540,8 +592,14 @@ def game(path):
 
     def build_house(player_name):
         if players[player_name]["property"] != {}:
-            chosen_option = input(Fore.YELLOW + "enter\n\t1.to build a house\n\t2.to pass\n" + Style.RESET_ALL)
-            SELECT_SOUND.play()
+            if players[player_name]["is_bot"]:
+                chosen_option = "2"
+                print(Fore.YELLOW + "enter\n\t1.to build a house\n\t2.to pass\n" + Style.RESET_ALL)
+                time.sleep(1)
+                print("2\n")
+            else:
+                chosen_option = input(Fore.YELLOW + "enter\n\t1.to build a house\n\t2.to pass\n" + Style.RESET_ALL)
+                SELECT_SOUND.play()
             if chosen_option == "1":
                 print(players[player_name]["property"])
                 chosen_option = input(Fore.YELLOW + "enter the position of property you want to build a house:\n" + Style.RESET_ALL)
@@ -632,8 +690,14 @@ def game(path):
                 pay(player_name , tiles[str(pos)]["owner"] , 50 * (2 ** (train_own_count(tiles[str(pos)]["owner"]) - 1)) , "mandatory")
         
         elif tiles[str(pos)]["owner"] == "bank":
-            chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
-            SELECT_SOUND.play()
+            if players[player_name]["is_bot"]:
+                chosen_option = "2"
+                print(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                time.sleep(1)
+                print("2\n")
+            else:
+                chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 200 , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
@@ -681,12 +745,18 @@ def game(path):
                     pay(player_name , tiles[str(pos)]["owner"] , 4 * step , "mandatory")   
 
             else:
-                die1 , die2 = dice()
+                die1 , die2 = dice(player_name)
                 pay(player_name , tiles[str(pos)]["owner"] , 10 * (die1 + die2) , "mandatory")
 
         elif tiles[str(pos)]["owner"] == "bank":
-            chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
-            SELECT_SOUND.play()
+            if players[player_name]["is_bot"]:
+                chosen_option = "2"
+                print(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                time.sleep(1)
+                print("2\n")
+            else:
+                chosen_option = input(Fore.YELLOW + "enter\n\t1.to buy\n\t2.to pass\n" + Style.RESET_ALL)
+                SELECT_SOUND.play()
             if chosen_option == "1":
                 if pay(player_name , "bank" , 150 , "optional") == True:
                     tiles[str(pos)]["owner"] = player_name
@@ -906,6 +976,7 @@ def game(path):
     player_list = list(players.keys())
     player_list.remove("bank")
     player_list.remove("turn")
+    player_list.remove("real_player")
     player = players["turn"]
     double_dice_counter = 0
 
@@ -936,8 +1007,8 @@ def game(path):
         table.add_column("ID", justify="cneter", no_wrap=False)
         table.add_column("Name", justify="center", no_wrap=False)
         table.add_column("Position", justify="center", no_wrap=False)
-        table.add_column("Jail", justify="center", no_wrap=False)
         table.add_column("Cash", justify="center", no_wrap=False)
+        table.add_column("Jail", justify="center", no_wrap=False)
         table.add_column("Get out of jail card", justify="center", no_wrap=False)
         table.add_column("Dice Counter", justify="center", no_wrap=False)
         table.add_column("Property", justify="center", no_wrap=False)
@@ -1044,8 +1115,11 @@ while True:
                     json.dump({}, f, ensure_ascii=False, indent=4)
                 players = {}
                 break
+        RP = int(input("Enter the number of players: "))
+        SELECT_SOUND.play()
+        clean(0)
         cnt = 1
-        while len(players) < 4:
+        while len(players) < RP:
             sub_choice = menu(["Signup", "Login", "Back"])
             clean(0)
             if sub_choice == "Back":
@@ -1058,12 +1132,15 @@ while True:
                     pass
             cnt += 1
         
+        player_maker(4 - RP)
+        
         if len(players) == 4:
             players["bank"] = {
                 "cash" : float(1e18)
             }
             p = list(players.keys())
             players["turn"] = p[0]
+            players["real_player"] = RP
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
             path = Path(__file__).parent / "old_games" / game_name
@@ -1082,8 +1159,10 @@ while True:
             players = json.load(f)
         
         cnt = len(players)
-        if cnt == 6:
-            cnt = 4
+        if cnt == 7:
+            cnt = players["real_player"]
+            print(Fore.YELLOW + f"Your number of non-bot players is {cnt}." + Style.RESET_ALL)
+            clean(2)
             while cnt:
                 while not login(path, cnt, 2):
                     pass
@@ -1098,8 +1177,10 @@ while True:
             while not login(path, cnt, 2):
                 pass
             cnt -= 1
-        
-        cnt = 4 - len(players)
+        RP = int(input("Enter the number of players: "))
+        SELECT_SOUND.play()
+        clean(0)
+        cnt = RP - len(players)
         print(Fore.YELLOW + f"Now you need to add {cnt} more players to this game." + Style.RESET_ALL)
         clean(3)
         i = len(players) + 1
@@ -1116,13 +1197,14 @@ while True:
                     pass
             cnt -= 1
             i += 1
-            
+        player_maker(4 - RP)
         if len(players) == 4:
             players["bank"] = {
                 "cash" : float(1e18)
             }
             p = list(players.keys())
             players["turn"] = p[0]
+            players["real_player"] = RP
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
             path = Path(__file__).parent / "old_games" / game_name

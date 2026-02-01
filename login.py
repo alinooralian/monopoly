@@ -41,7 +41,7 @@ def signup():
     }
 
     save_users()
-    messagebox.showinfo("🎉 Yay", "Signup successful 💖")
+    messagebox.showinfo("🎉 Yay", "Signup successful ")
 
 def login():
     username = username_entry.get()
@@ -62,7 +62,7 @@ def login():
     messagebox.showerror("💔 Error", "Wrong username or password")
 
 window = tk.Tk()
-window.title("🎀 Monopoly Login 💖")
+window.title("🎀 Monopoly🎀  ")
 window.geometry("320x300")
 window.configure(bg="#ffe6f0")
 

@@ -128,7 +128,7 @@ def roll_action():
     next_turn()
 
 window = tk.Tk()
-window.title("🎀 Monopoly Game 💕")
+window.title("🎀 Monopoly🎀 ")
 window.geometry("500x420")
 window.configure(bg="#ffe6f0")
 

@@ -1,0 +1,17 @@
+bcrypt
+chance_community
+colorama
+curses
+json
+os
+pathlib
+pygame
+random
+re
+rich
+shutil
+subprocess,
+sys
+time
+tkinter
+uuid
